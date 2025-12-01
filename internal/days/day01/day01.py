@@ -42,5 +42,41 @@ def part1(rotations: list[tuple[str, int]]) -> int:
 
 
 def part2(rotations: list[tuple[str, int]]) -> int:
-    """Part 2 solution (to be implemented when puzzle is unlocked)."""
-    return 0
+    """
+    Calculate the password by counting how many times the dial points at 0
+    during ANY click in the rotation sequence (method 0x434C49434B).
+
+    This counts every time the dial passes through 0 during a rotation,
+    not just when it ends at 0.
+    """
+    import math
+
+    position = 50
+    count_zeros = 0
+
+    for direction, distance in rotations:
+        # Count how many times we pass through 0 during this rotation
+        if direction == 'L':
+            # For left rotation, we pass through 0 when moving from pos to pos-dist
+            # We pass through 0 at steps where (pos - k) ≡ 0 (mod 100)
+            # This happens when k = pos - 100*m for integer m
+            # Valid k must be in range [1, distance]
+            m_min = math.ceil((position - distance) / 100)
+            m_max = (position - 1) // 100
+            count = max(0, m_max - m_min + 1)
+        else:  # direction == 'R'
+            # For right rotation, we pass through 0 when moving from pos to pos+dist
+            # We pass through 0 at steps where (pos + k) ≡ 0 (mod 100)
+            # This happens when k = 100*m - pos for positive integer m
+            # Valid k must be in range [1, distance]
+            count = (position + distance) // 100
+
+        count_zeros += count
+
+        # Update position
+        if direction == 'L':
+            position = (position - distance) % 100
+        else:
+            position = (position + distance) % 100
+
+    return count_zeros

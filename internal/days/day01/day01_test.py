@@ -75,11 +75,30 @@ class TestPart1:
 
 
 class TestPart2:
-    def test_placeholder(self):
-        """Placeholder test for part 2."""
+    def test_example(self):
+        """Test with the example from problem description for part 2."""
         rotations = parse(EXAMPLE_INPUT)
-        # Part 2 not yet implemented
+        assert part2(rotations) == 6
+
+    def test_multiple_passes(self):
+        """Test R1000 from position 50 passes through 0 ten times."""
+        rotations = [('R', 1000)]
+        assert part2(rotations) == 10
+
+    def test_no_passes(self):
+        """Test rotation that doesn't pass through 0."""
+        rotations = [('R', 10)]  # 50 -> 60, no crossing
         assert part2(rotations) == 0
+
+    def test_single_pass_right(self):
+        """Test right rotation passing through 0 once."""
+        rotations = [('R', 50)]  # 50 -> 0, passes through 0 at step 50
+        assert part2(rotations) == 1
+
+    def test_single_pass_left(self):
+        """Test left rotation passing through 0 once."""
+        rotations = [('L', 68)]  # 50 -> 82, passes through 0 during rotation
+        assert part2(rotations) == 1
 
 
 def test_manual_walk_through():
