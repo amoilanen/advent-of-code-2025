@@ -99,35 +99,3 @@ class TestPart2:
         """Test left rotation passing through 0 once."""
         rotations = [('L', 68)]  # 50 -> 82, passes through 0 during rotation
         assert part2(rotations) == 1
-
-
-def test_manual_walk_through():
-    """Manually walk through the example to verify logic."""
-    rotations = [
-        ('L', 68),  # 50 - 68 = -18 -> 82
-        ('L', 30),  # 82 - 30 = 52
-        ('R', 48),  # 52 + 48 = 100 -> 0 ✓
-        ('L', 5),   # 0 - 5 = -5 -> 95
-        ('R', 60),  # 95 + 60 = 155 -> 55
-        ('L', 55),  # 55 - 55 = 0 ✓
-        ('L', 1),   # 0 - 1 = -1 -> 99
-        ('L', 99),  # 99 - 99 = 0 ✓
-        ('R', 14),  # 0 + 14 = 14
-        ('L', 82),  # 14 - 82 = -68 -> 32
-    ]
-
-    position = 50
-    positions = [position]
-
-    for direction, distance in rotations:
-        if direction == 'L':
-            position = (position - distance) % 100
-        else:
-            position = (position + distance) % 100
-        positions.append(position)
-
-    expected_positions = [50, 82, 52, 0, 95, 55, 0, 99, 0, 14, 32]
-    assert positions == expected_positions
-
-    zeros_count = sum(1 for p in positions[1:] if p == 0)
-    assert zeros_count == 3

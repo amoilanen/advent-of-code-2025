@@ -57,10 +57,17 @@ def part2(rotations: list[tuple[str, int]]) -> int:
     for direction, distance in rotations:
         # Count how many times we pass through 0 during this rotation
         if direction == 'L':
-            # For left rotation, we pass through 0 when moving from pos to pos-dist
-            # We pass through 0 at steps where (pos - k) ≡ 0 (mod 100)
-            # This happens when k = pos - 100*m for integer m
-            # Valid k must be in range [1, distance]
+            # When rotating left by distance from position, we're moving from position p to position (p - distance) mod 100.
+            # We cross 0 when, at some step k (where 1 ≤ k ≤ distance), the value (position - k) mod 100 = 0.
+            # This means: position - k ≡ 0 (mod 100)
+            # Which simplifies to: k = position - 100m for some integer m
+            #  For k to be valid, we need:
+            #  - 1 ≤ k ≤ distance
+            #  - 1 ≤ position - 100m ≤ distance
+            #
+            #  Rearranging:
+            #  - position - distance ≤ 100m ≤ position - 1
+            #  - (position - distance)/100 ≤ m ≤ (position - 1)/100
             m_min = math.ceil((position - distance) / 100)
             m_max = (position - 1) // 100
             count = max(0, m_max - m_min + 1)
