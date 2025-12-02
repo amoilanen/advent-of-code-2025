@@ -8,7 +8,7 @@ Usage:
 """
 
 import sys
-from internal.days import day01
+from internal.days import day01, day02
 
 
 def main():
@@ -24,6 +24,7 @@ def run_all_days():
     print()
 
     run_day01()
+    run_day02()
 
 
 def run_specific_day(day: str):
@@ -32,6 +33,9 @@ def run_specific_day(day: str):
         '1': run_day01,
         'day01': run_day01,
         'day1': run_day01,
+        '2': run_day02,
+        'day02': run_day02,
+        'day2': run_day02,
     }
 
     runner = day_map.get(day.lower())
@@ -50,6 +54,15 @@ def run_day01():
     parsed = day01.parse(day01.DAY_INPUT)
     print(f"  Part 1: {day01.part1(parsed)}")
     print(f"  Part 2: {day01.part2(parsed)}")
+    print()
+
+
+def run_day02():
+    """Run Day 2 solution."""
+    print("Day 2:")
+    parsed = day02.parse(day02.DAY_INPUT)
+    print(f"  Part 1: {day02.part1(parsed)}")
+    print(f"  Part 2: {day02.part2(parsed)}")
     print()
 
 
