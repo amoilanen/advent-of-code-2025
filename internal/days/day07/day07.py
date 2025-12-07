@@ -119,3 +119,59 @@ def part1(grid: list[str], start_row: int, start_col: int) -> int:
     
     return split_count
 
+
+def part2(grid: list[str], start_row: int, start_col: int) -> int:
+    """
+    Count the number of unique timelines (quantum many-worlds interpretation).
+
+    In Part 2, a single quantum particle takes both paths at each splitter,
+    creating multiple timelines. We count how many unique paths (timelines)
+    exist from start to exit.
+
+    Uses memoization to count paths efficiently: for each starting position,
+    calculate how many distinct exit paths exist.
+
+    Args:
+        grid: The grid as a list of strings
+        start_row: Starting row position
+        start_col: Starting column position
+
+    Returns:
+        Number of unique timelines
+    """
+    rows = len(grid)
+    cols = len(grid[0]) if grid else 0
+
+    # Memoization: cache[row][col] = number of distinct paths from (row, col) to exit
+    cache = {}
+
+    def count_paths(row, col):
+        """Count distinct paths from (row, col) to grid exit."""
+        # Check if out of bounds - this is one exit path
+        if row >= rows or col < 0 or col >= cols:
+            return 1
+
+        # Check cache
+        if (row, col) in cache:
+            return cache[(row, col)]
+
+        # Get current cell
+        char = grid[row][col]
+
+        # If it's a splitter, count paths from both split directions
+        if char == '^':
+            # Split into left and right beams (at same row)
+            # Then each continues downward
+            left_paths = count_paths(row, col - 1)
+            right_paths = count_paths(row, col + 1)
+            total = left_paths + right_paths
+        else:
+            # Continue downward
+            total = count_paths(row + 1, col)
+
+        cache[(row, col)] = total
+        return total
+
+    # Start counting from position below S
+    return count_paths(start_row + 1, start_col)
+

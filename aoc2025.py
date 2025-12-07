@@ -112,7 +112,7 @@ def run_day07():
     print("Day 7:")
     grid, start_row, start_col = day07.parse(day07.DAY_INPUT)
     print(f"  Part 1: {day07.part1(grid, start_row, start_col)}")
-    print(f"  Part 2: Not implemented yet")
+    print(f"  Part 2: {day07.part2(grid, start_row, start_col)}")
     print()
 
 
