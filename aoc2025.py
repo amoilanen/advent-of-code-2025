@@ -140,9 +140,10 @@ def run_day09():
 def run_day10():
     """Run Day 10 solution."""
     print("Day 10:")
-    machines = day10.parse(day10.DAY_INPUT)
-    print(f"  Part 1: {day10.part1(machines)}")
-    print(f"  Part 2: {day10.part2(machines)}")
+    machines_part1 = day10.parse(day10.DAY_INPUT)
+    machines_part2 = day10.parse_part2(day10.DAY_INPUT)
+    print(f"  Part 1: {day10.part1(machines_part1)}")
+    print(f"  Part 2: {day10.part2(machines_part2)}")
     print()
 
 

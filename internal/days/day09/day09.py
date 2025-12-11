@@ -83,7 +83,7 @@ def _point_in_polygon(point: Tuple[int, int], polygon: List[Tuple[int, int]]) ->
     """
     x, y = point
     n = len(polygon)
-    inside = False
+    edge_crossings = 0
 
     p1x, p1y = polygon[0]
     for i in range(1, n + 1):
@@ -91,13 +91,16 @@ def _point_in_polygon(point: Tuple[int, int], polygon: List[Tuple[int, int]]) ->
         if y > min(p1y, p2y):
             if y <= max(p1y, p2y):
                 if x <= max(p1x, p2x):
+                    # Line going through the points p1 and p2 has the equation:
+                    # y - p1y = m * (x - p1x)
+                    # m = (p2y - p1y) / (p2x - p1x)
                     if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
+                        x_intersection = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= x_intersection: # Ray goes to the right
+                        edge_crossings = edge_crossings + 1
         p1x, p1y = p2x, p2y
 
-    return inside
+    return edge_crossings % 2 == 1
 
 
 def _get_tiles_on_line(p1: Tuple[int, int], p2: Tuple[int, int]) -> Set[Tuple[int, int]]:
