@@ -12,7 +12,8 @@ reaching target counter values.
 """
 
 import re
-from typing import List, Tuple, Optional
+from dataclasses import dataclass
+from typing import List, Optional
 try:
     import numpy as np
     from scipy.optimize import milp, LinearConstraint, Bounds
@@ -21,19 +22,39 @@ except ImportError:
     SCIPY_AVAILABLE = False
 
 
-def parse(input_text: str) -> List[Tuple[List[bool], List[List[int]]]]:
+@dataclass
+class MachineConfig:
+    """Configuration for a button machine with indicator lights.
+
+    Attributes:
+        target: Target state for each indicator light (True = on, False = off)
+        buttons: List of buttons, where each button contains indices of lights it toggles
+    """
+    target: List[bool]
+    buttons: List[List[int]]
+
+
+@dataclass
+class JoltageConfig:
+    """Configuration for a button machine with joltage counters.
+
+    Attributes:
+        targets: Target joltage values for each counter
+        buttons: List of buttons, where each button contains indices of counters it increments
+    """
+    targets: List[int]
+    buttons: List[List[int]]
+
+
+def parse(input_text: str) -> List[MachineConfig]:
     """
     Parse the input text into a list of machine configurations.
-
-    Each machine has:
-    - A target state for indicator lights (list of bools)
-    - A list of buttons, where each button is a list of light indices it toggles
 
     Args:
         input_text: The input containing machine configurations
 
     Returns:
-        List of (target_state, buttons) tuples
+        List of MachineConfig objects
     """
     machines = []
 
@@ -56,7 +77,7 @@ def parse(input_text: str) -> List[Tuple[List[bool], List[List[int]]]]:
             indices = [int(x) for x in button_str.split(',')]
             buttons.append(indices)
 
-        machines.append((target, buttons))
+        machines.append(MachineConfig(target=target, buttons=buttons))
 
     return machines
 
@@ -106,39 +127,35 @@ def solve_machine(target: List[bool], buttons: List[List[int]]) -> Optional[int]
     return min_presses
 
 
-def part1(machines: List[Tuple[List[bool], List[List[int]]]]) -> int:
+def part1(machines: List[MachineConfig]) -> int:
     """
     Calculate the total minimum button presses for all machines.
 
     Args:
-        machines: List of (target_state, buttons) tuples
+        machines: List of MachineConfig objects
 
     Returns:
         Sum of minimum presses for all machines
     """
     total = 0
 
-    for target, buttons in machines:
-        min_presses = solve_machine(target, buttons)
+    for machine in machines:
+        min_presses = solve_machine(machine.target, machine.buttons)
         if min_presses is not None:
             total += min_presses
 
     return total
 
 
-def parse_part2(input_text: str) -> List[Tuple[List[int], List[List[int]]]]:
+def parse_part2(input_text: str) -> List[JoltageConfig]:
     """
     Parse the input text for part 2 (joltage requirements).
-
-    Each machine has:
-    - Target joltage values for counters (from {curly braces})
-    - A list of buttons, where each button is a list of counter indices it increments
 
     Args:
         input_text: The input containing machine configurations
 
     Returns:
-        List of (target_values, buttons) tuples
+        List of JoltageConfig objects
     """
     machines = []
 
@@ -161,7 +178,7 @@ def parse_part2(input_text: str) -> List[Tuple[List[int], List[List[int]]]]:
             indices = [int(x) for x in button_str.split(',')]
             buttons.append(indices)
 
-        machines.append((targets, buttons))
+        machines.append(JoltageConfig(targets=targets, buttons=buttons))
 
     return machines
 
@@ -223,20 +240,20 @@ def solve_machine_part2(targets: List[int], buttons: List[List[int]]) -> Optiona
         return None
 
 
-def part2(machines: List[Tuple[List[int], List[List[int]]]]) -> int:
+def part2(machines: List[JoltageConfig]) -> int:
     """
     Calculate the total minimum button presses for all machines (part 2).
 
     Args:
-        machines: List of (target_values, buttons) tuples
+        machines: List of JoltageConfig objects
 
     Returns:
         Sum of minimum presses for all machines
     """
     total = 0
 
-    for targets, buttons in machines:
-        min_presses = solve_machine_part2(targets, buttons)
+    for machine in machines:
+        min_presses = solve_machine_part2(machine.targets, machine.buttons)
         if min_presses is not None:
             total += min_presses
 

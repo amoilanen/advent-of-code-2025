@@ -14,19 +14,19 @@ class TestParse:
         machines = parse(input_text)
 
         assert len(machines) == 1
-        target, buttons = machines[0]
+        machine = machines[0]
 
         # Target state: [False, True, True, False]
-        assert target == [False, True, True, False]
+        assert machine.target == [False, True, True, False]
 
         # Buttons: (3), (1,3), (2), (2,3), (0,2), (0,1)
-        assert len(buttons) == 6
-        assert buttons[0] == [3]
-        assert buttons[1] == [1, 3]
-        assert buttons[2] == [2]
-        assert buttons[3] == [2, 3]
-        assert buttons[4] == [0, 2]
-        assert buttons[5] == [0, 1]
+        assert len(machine.buttons) == 6
+        assert machine.buttons[0] == [3]
+        assert machine.buttons[1] == [1, 3]
+        assert machine.buttons[2] == [2]
+        assert machine.buttons[3] == [2, 3]
+        assert machine.buttons[4] == [0, 2]
+        assert machine.buttons[5] == [0, 1]
 
     def test_parse_example(self):
         """Test parsing the example input."""
@@ -35,29 +35,26 @@ class TestParse:
         assert len(machines) == 3
 
         # First machine: [.##.]
-        target1, buttons1 = machines[0]
-        assert target1 == [False, True, True, False]
-        assert len(buttons1) == 6
+        assert machines[0].target == [False, True, True, False]
+        assert len(machines[0].buttons) == 6
 
         # Second machine: [...#.]
-        target2, buttons2 = machines[1]
-        assert target2 == [False, False, False, True, False]
-        assert len(buttons2) == 5
+        assert machines[1].target == [False, False, False, True, False]
+        assert len(machines[1].buttons) == 5
 
         # Third machine: [.###.#]
-        target3, buttons3 = machines[2]
-        assert target3 == [False, True, True, True, False, True]
-        assert len(buttons3) == 4
+        assert machines[2].target == [False, True, True, True, False, True]
+        assert len(machines[2].buttons) == 4
 
     def test_parse_multidigit_indices(self):
         """Test parsing buttons with multi-digit indices."""
         input_text = "[...........#] (0,10,11) {1,2,3}"
         machines = parse(input_text)
 
-        target, buttons = machines[0]
-        assert len(target) == 12
-        assert target[11] == True
-        assert buttons[0] == [0, 10, 11]
+        machine = machines[0]
+        assert len(machine.target) == 12
+        assert machine.target[11] == True
+        assert machine.buttons[0] == [0, 10, 11]
 
 
 class TestSolveMachine:
@@ -157,19 +154,19 @@ class TestParsePart2:
         machines = parse_part2(input_text)
 
         assert len(machines) == 1
-        targets, buttons = machines[0]
+        machine = machines[0]
 
         # Targets: {3,5,4,7}
-        assert targets == [3, 5, 4, 7]
+        assert machine.targets == [3, 5, 4, 7]
 
         # Buttons: (3), (1,3), (2), (2,3), (0,2), (0,1)
-        assert len(buttons) == 6
-        assert buttons[0] == [3]
-        assert buttons[1] == [1, 3]
-        assert buttons[2] == [2]
-        assert buttons[3] == [2, 3]
-        assert buttons[4] == [0, 2]
-        assert buttons[5] == [0, 1]
+        assert len(machine.buttons) == 6
+        assert machine.buttons[0] == [3]
+        assert machine.buttons[1] == [1, 3]
+        assert machine.buttons[2] == [2]
+        assert machine.buttons[3] == [2, 3]
+        assert machine.buttons[4] == [0, 2]
+        assert machine.buttons[5] == [0, 1]
 
     def test_parse_example(self):
         """Test parsing the example input for part 2."""
@@ -178,19 +175,16 @@ class TestParsePart2:
         assert len(machines) == 3
 
         # First machine: {3,5,4,7}
-        targets1, buttons1 = machines[0]
-        assert targets1 == [3, 5, 4, 7]
-        assert len(buttons1) == 6
+        assert machines[0].targets == [3, 5, 4, 7]
+        assert len(machines[0].buttons) == 6
 
         # Second machine: {7,5,12,7,2}
-        targets2, buttons2 = machines[1]
-        assert targets2 == [7, 5, 12, 7, 2]
-        assert len(buttons2) == 5
+        assert machines[1].targets == [7, 5, 12, 7, 2]
+        assert len(machines[1].buttons) == 5
 
         # Third machine: {10,11,11,5,10,5}
-        targets3, buttons3 = machines[2]
-        assert targets3 == [10, 11, 11, 5, 10, 5]
-        assert len(buttons3) == 4
+        assert machines[2].targets == [10, 11, 11, 5, 10, 5]
+        assert len(machines[2].buttons) == 4
 
 
 class TestSolveMachinePart2:
