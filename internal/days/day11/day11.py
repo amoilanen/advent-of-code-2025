@@ -39,102 +39,91 @@ def parse(input_text: str) -> Dict[str, List[str]]:
     return graph
 
 
-def count_paths(graph: Dict[str, List[str]], start: str, end: str) -> int:
+def count_paths(
+    graph: Dict[str, List[str]],
+    start: str,
+    end: str,
+    must_visit: Set[str] = None
+) -> int:
     """
-    Count all paths from start to end in the graph using DFS.
+    Count all paths from start to end, optionally requiring certain nodes to be visited.
 
-    Uses depth-first search to enumerate all possible paths.
-    Tracks visited nodes in current path to avoid cycles.
+    Uses memoized DFS to efficiently count paths when must_visit is specified.
+    For simple path counting (no must_visit), uses DFS with cycle detection.
+    If must_visit is provided, only counts paths that visit all specified nodes.
 
     Args:
         graph: Dictionary mapping device to list of connected devices
         start: Starting device name
         end: Target device name
+        must_visit: Optional set of device names that must be visited on each path
 
     Returns:
-        Total number of paths from start to end
+        Total number of paths from start to end (visiting all must_visit nodes if specified)
     """
-    def dfs(current: str, visited: Set[str]) -> int:
+    # Convert must_visit to frozenset for hashability in cache
+    must_visit_nodes = frozenset(must_visit) if must_visit else frozenset()
+
+    # Memoization cache: (current_node, nodes_found_so_far) -> path_count
+    cache: Dict[Tuple[str, FrozenSet[str]], int] = {}
+
+    def dfs_with_required(current: str, nodes_found: FrozenSet[str], visited: Set[str]) -> int:
+        """
+        DFS helper that counts paths while tracking which must_visit nodes have been found.
+
+        Args:
+            current: Current node in the path
+            nodes_found: Set of must_visit nodes we've encountered so far
+            visited: Set of nodes in the current path (for cycle detection)
+        """
+        # Check cache (only when tracking required nodes)
+        if must_visit_nodes:
+            cache_key = (current, nodes_found)
+            if cache_key in cache:
+                return cache[cache_key]
+
         # Base case: reached the target
         if current == end:
-            return 1
+            # Only count this path if we've found all required nodes
+            result = 1 if nodes_found == must_visit_nodes else 0
+            if must_visit_nodes:
+                cache[(current, nodes_found)] = result
+            return result
 
         # If this device has no outputs, no paths
         if current not in graph:
+            if must_visit_nodes:
+                cache[(current, nodes_found)] = 0
             return 0
 
         # Count paths through all outputs
         path_count = 0
         for next_device in graph[current]:
             # Avoid cycles by not revisiting nodes in current path
-            if next_device not in visited:
-                visited.add(next_device)
-                path_count += dfs(next_device, visited)
-                visited.remove(next_device)
+            if next_device in visited:
+                continue
 
+            # Update nodes_found if next_device is one we must visit
+            updated_nodes_found = (
+                nodes_found | {next_device}
+                if next_device in must_visit_nodes
+                else nodes_found
+            )
+
+            # Add to visited set for cycle detection
+            visited.add(next_device)
+            path_count += dfs_with_required(next_device, updated_nodes_found, visited)
+            visited.remove(next_device)
+
+        if must_visit_nodes:
+            cache[(current, nodes_found)] = path_count
         return path_count
 
-    # Start DFS with initial node in visited set
-    return dfs(start, {start})
+    # Initialize nodes_found with start if it's in must_visit
+    initial_nodes_found = frozenset({start}) if start in must_visit_nodes else frozenset()
 
-
-def count_paths_with_required(
-    graph: Dict[str, List[str]],
-    start: str,
-    end: str,
-    required: Set[str]
-) -> int:
-    """
-    Count all paths from start to end that visit all required nodes.
-
-    Uses memoized DFS to efficiently count paths. Assumes DAG (no cycles).
-    Only counts paths that visit all required nodes before reaching end.
-
-    Args:
-        graph: Dictionary mapping device to list of connected devices
-        start: Starting device name
-        end: Target device name
-        required: Set of device names that must be visited
-
-    Returns:
-        Total number of paths from start to end that visit all required nodes
-    """
-    required_frozen = frozenset(required)
-
-    # Memoization cache: (current, required_visited_frozenset) -> count
-    cache: Dict[Tuple[str, FrozenSet[str]], int] = {}
-
-    def dfs(current: str, required_visited: FrozenSet[str]) -> int:
-        # Check cache
-        cache_key = (current, required_visited)
-        if cache_key in cache:
-            return cache[cache_key]
-
-        # Base case: reached the target
-        if current == end:
-            result = 1 if required_visited == required_frozen else 0
-            cache[cache_key] = result
-            return result
-
-        # If this device has no outputs, no paths
-        if current not in graph:
-            cache[cache_key] = 0
-            return 0
-
-        # Count paths through all outputs
-        path_count = 0
-        for next_device in graph[current]:
-            new_required = required_visited | ({next_device} if next_device in required else frozenset())
-            path_count += dfs(next_device, new_required)
-
-        cache[cache_key] = path_count
-        return path_count
-
-    # Track if start is a required node
-    initial_required = frozenset({start}) if start in required else frozenset()
-
-    # Start DFS
-    return dfs(start, initial_required)
+    # Start DFS with start node in visited set
+    return dfs_with_required(start, initial_nodes_found, {start})
 
 
 def part1(graph: Dict[str, List[str]]) -> int:
@@ -160,4 +149,4 @@ def part2(graph: Dict[str, List[str]]) -> int:
     Returns:
         Number of paths from 'svr' to 'out' that visit both 'dac' and 'fft'
     """
-    return count_paths_with_required(graph, 'svr', 'out', {'dac', 'fft'})
+    return count_paths(graph, 'svr', 'out', {'dac', 'fft'})

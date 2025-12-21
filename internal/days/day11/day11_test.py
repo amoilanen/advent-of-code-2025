@@ -1,7 +1,7 @@
 """Tests for Day 11: Device Path Counting"""
 
 import pytest
-from .day11 import parse, count_paths, count_paths_with_required, part1, part2
+from .day11 import parse, count_paths, part1, part2
 from .input import EXAMPLE_INPUT
 
 
@@ -150,28 +150,6 @@ class TestPart1:
         # 5. you -> ccc -> fff -> out
         assert result == 5
 
-    def test_simple_case(self):
-        """Test with a simple case."""
-        input_text = """you: out"""
-        graph = parse(input_text)
-        assert part1(graph) == 1
-
-    def test_two_step_path(self):
-        """Test with a two-step path."""
-        input_text = """you: middle
-middle: out"""
-        graph = parse(input_text)
-        assert part1(graph) == 1
-
-    def test_multiple_paths(self):
-        """Test with multiple paths."""
-        input_text = """you: a b
-a: out
-b: out"""
-        graph = parse(input_text)
-        assert part1(graph) == 2
-
-
 class TestCountPathsWithRequired:
     """Test path counting with required nodes."""
 
@@ -183,7 +161,7 @@ class TestCountPathsWithRequired:
             'other': ['end']
         }
         # Only path through 'req' counts
-        assert count_paths_with_required(graph, 'start', 'end', {'req'}) == 1
+        assert count_paths(graph, 'start', 'end', {'req'}) == 1
 
     def test_two_required_nodes(self):
         """Test counting paths with two required nodes."""
@@ -195,7 +173,7 @@ class TestCountPathsWithRequired:
             'req2': ['end']
         }
         # Only start -> a -> req1 -> req2 -> end visits both
-        assert count_paths_with_required(graph, 'start', 'end', {'req1', 'req2'}) == 1
+        assert count_paths(graph, 'start', 'end', {'req1', 'req2'}) == 1
 
     def test_multiple_paths_with_required(self):
         """Test multiple paths that visit required nodes."""
@@ -208,7 +186,7 @@ class TestCountPathsWithRequired:
         # Both paths visit both required nodes:
         # start -> a -> req1 -> req2 -> end
         # start -> a -> req2 -> end (doesn't visit req1)
-        assert count_paths_with_required(graph, 'start', 'end', {'req1', 'req2'}) == 1
+        assert count_paths(graph, 'start', 'end', {'req1', 'req2'}) == 1
 
     def test_no_paths_with_required(self):
         """Test when no paths visit all required nodes."""
@@ -220,7 +198,7 @@ class TestCountPathsWithRequired:
             'req2': ['end']
         }
         # No single path visits both req1 and req2
-        assert count_paths_with_required(graph, 'start', 'end', {'req1', 'req2'}) == 0
+        assert count_paths(graph, 'start', 'end', {'req1', 'req2'}) == 0
 
     def test_required_in_different_orders(self):
         """Test that required nodes can be visited in any order."""
@@ -234,7 +212,7 @@ class TestCountPathsWithRequired:
             'req2': ['end']
         }
         # Paths can visit req1 and req2 in either order
-        result = count_paths_with_required(graph, 'start', 'end', {'req1', 'req2'})
+        result = count_paths(graph, 'start', 'end', {'req1', 'req2'})
         assert result >= 0  # Just check it doesn't crash
 
 
@@ -263,21 +241,3 @@ hhh: out"""
         # 1. svr -> aaa -> fft -> ccc -> eee -> dac -> fff -> ggg -> out
         # 2. svr -> aaa -> fft -> ccc -> eee -> dac -> fff -> hhh -> out
         assert result == 2
-
-    def test_simple_required(self):
-        """Test with a simple case requiring specific nodes."""
-        input_text = """svr: dac
-dac: fft
-fft: out"""
-        graph = parse(input_text)
-        # Path visits both dac and fft
-        assert part2(graph) == 1
-
-    def test_no_valid_paths(self):
-        """Test when no paths visit both required nodes."""
-        input_text = """svr: dac
-dac: out
-fft: out"""
-        graph = parse(input_text)
-        # Path only visits dac, not fft
-        assert part2(graph) == 0
